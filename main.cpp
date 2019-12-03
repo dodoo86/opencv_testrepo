@@ -6,6 +6,10 @@
 #define PATH "../"
 #endif
 
+#ifdef __APPLE__
+#define PATH "../"
+#endif
+
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
 
