@@ -15,6 +15,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
+#include <QtWidgets/qmessagebox.h>
 
 #define WHITE Scalar(255,255,255)
 #define w 400
@@ -38,6 +39,8 @@ int main(int argc, char** argv )
     double alpha = 4.0;
     int beta = 2;
     image.convertTo(new_image,-1,alpha,beta);
+    ///GaussianBlur filter
+    GaussianBlur(image, new_image, Size(5,5),150,150);
 
     namedWindow("Display Image", WINDOW_AUTOSIZE );
     imshow("Display Image", image);
@@ -77,8 +80,8 @@ int main(int argc, char** argv)
     double alpha = 0.5; double beta;
     Mat src1, src2, src3;
 
-    src1 = imread("../minearl2.jpg", 1);
-    src2 = imread("../smallfern.jpg", 1);
+    src1 = imread(PATH "minearl2.jpg", 1);
+    src2 = imread(PATH"smallfern.jpg", 1);
 
     if(!src1.data) {printf("Error loading src1 \n"); return -1;}
     if(!src2.data) {printf("Error loading src2 \n"); return -1;}
@@ -254,5 +257,310 @@ void Line(Mat img, Point start, Point end)
     int lineType = LINE_8;
 
     line(img,start,end,Scalar(0,0,0),thicness,lineType);
+}
+*/
+///WEBCAM LINE DETECTION------------------------------------------------------------------------------------------------
+/*
+static void on_trackbar(int, void*)
+{
+
+}
+
+
+int main(int argc, char* argv[])
+{
+    Mat frame;
+    Mat frame2 ;
+    Mat text(100,500,CV_8UC1);
+
+    VideoCapture cap(0);
+    if (!cap.isOpened())
+    {
+        cout << "Cannot open the video cam" << endl;
+        return  0;
+
+    }
+    namedWindow("Image", 1);
+    int threshval;
+    createTrackbar("Threshold", "Image", &threshval, 255, on_trackbar);
+
+    while (1)
+    {
+        bool bSuccess = cap.read(frame); // read a new frame from video
+
+
+        if (!bSuccess)
+        {
+            cout << "Cannot read a frame from video stream" << endl;
+            break;
+        }
+
+        cvtColor(frame, frame2, COLOR_BGR2GRAY);
+        GaussianBlur(frame2, frame2, Size(5, 5), 0);
+        Canny(frame2, frame2, threshval, threshval * 2, 3);
+        morphologyEx(frame2, frame2, MORPH_CLOSE, Mat(), Point(-1, -1), 2);
+        Mat stat, centroid;
+        Mat bw = threshval < 128 ? (frame2< threshval) : (frame2 > threshval);
+        Mat labelImage(frame2.size(), CV_32S);
+        int nLabels = connectedComponentsWithStats(bw, labelImage, stat, centroid, 8);
+
+        std::vector<Vec3b> colors(nLabels);
+        colors[0] = Vec3b(0, 0, 0);//background
+        for (int label = 1; label < nLabels; ++label)
+        {
+            colors[label] = Vec3b((rand() & 255), (rand() & 255), (rand() & 255));
+        }
+        Mat dst(frame2.size(), CV_8UC3);
+        for (int r = 0; r < dst.rows; ++r)
+        {
+            for (int c = 0; c < dst.cols; ++c)
+            {
+                int label = labelImage.at<int>(r, c);
+                Vec3b &pixel = dst.at<Vec3b>(r, c);
+                pixel = colors[label];
+            }
+        }
+        bool detection=false;
+        for (int i = 0; i < nLabels; i++)
+        {
+            if (stat.at<int>(i, CC_STAT_AREA) <80 && stat.at<int>(i, CC_STAT_AREA) >10)
+            {
+
+                putText(frame2,"mitter",Point(10,30),FONT_HERSHEY_SIMPLEX,1,Scalar(128));
+                detection=true;
+                break;
+
+            }
+        }
+        text.setTo(0);
+        if (detection)
+            putText(text, "detection true", Point(10, 40), FONT_HERSHEY_SIMPLEX, 1, Scalar(128));
+        else
+            putText(text, "detection false", Point(10, 40), FONT_HERSHEY_SIMPLEX, 1, Scalar(128));
+        imshow("text", text);
+
+        imshow("Image", frame2);
+
+        if (waitKey(1) == 27)
+        {
+            cout << "esc key is pressed by user" << endl;
+            break;
+        }
+
+    }
+    return 0;
+}
+*/
+///
+/*
+int main(int argc, char** argv )
+{
+
+    Mat image;
+    image = imread("../cyberpunk_room.jpg", 1);
+    if ( !image.data )
+    {
+        printf("No image data \n");
+        return -1;
+    }
+    Mat new_image = Mat::zeros(image.size(),image.type());
+    double alpha = 1;
+    int beta = 2;
+    image.convertTo(new_image,-1,alpha,beta);
+    putText(image,"Blanlaaksjladsfhldshj", Point(100, 100), FONT_HERSHEY_DUPLEX, 5.0, CV_RGB(0,0,0),20);
+
+    namedWindow("Display Image", WINDOW_AUTOSIZE );
+    imshow("Display Image", image);
+    //imshow("New Image", new_image);
+    waitKey(0);
+
+
+
+    return 0;
+}
+*/
+///DRAWING LINE + QT WINDOW---------------------------------------------------------------------------------------------
+/*
+void Line(Mat img, Point start,Point end);
+
+int main()
+{
+    char blank_window[] = "Blank Window";
+    Mat blank_image = Mat::zeros(w,w,CV_8UC3);
+
+    Line(blank_image,Point(1,1),Point(250,250));
+
+    imshow(blank_window,blank_image);
+    QMessageBox mBox(QMessageBox::Icon::Question, "Hallod", "Adjal mar egy cigit!", QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::Ignore);
+    mBox.show();
+    waitKey(0);
+
+    return 0;
+}
+
+void Line(Mat img, Point start, Point end)
+{
+    int thicness = 2;
+    int lineType = LINE_8;
+
+    line(img,start,end,Scalar(155,200,120),thicness,lineType);
+}
+*/
+///RANDOM LINE GENERATOR------------------------------------------------------------------------------------------------
+/*
+void Drawing_Random_Lines (Mat image, char* window_name, RNG rng,int NumOfLines, int windowHeight,int windowWidth);
+static Scalar randomColor(RNG& rng);
+
+int main()
+{
+    int windowHeight = 480, windowWidth = 640;
+    Mat image = Mat::zeros(windowHeight, windowWidth, CV_8UC3);
+    namedWindow("Random Lines", WINDOW_AUTOSIZE);
+    int n = 1;
+    while(1)
+    {
+        RNG rng(n);
+        Drawing_Random_Lines(image,"Random Lines",rng,5,windowHeight,windowWidth);
+        imshow("Random Lines",image);
+        waitKey(100);
+        n++;
+    }
+    return (0);
+}
+
+void Drawing_Random_Lines(Mat image, char* window_name, RNG rng, int NumOfLines, int windowHeight, int windowWidth)
+{
+    int lineType = 8;
+    Point pt1, pt2;
+
+    for (int i = 0; i < NumOfLines; ++i)
+    {
+    pt1.x = rng.uniform(0, windowWidth);
+    pt1.y = rng.uniform(0, windowHeight);
+    pt2.x = rng.uniform(0, windowWidth);
+    pt2.y = rng.uniform(0, windowHeight);
+
+    line( image, pt1, pt2, randomColor(rng), rng.uniform(1, 10), 8 );
+    imshow( window_name, image );
+
+    }
+}
+
+static Scalar randomColor(RNG& rng)
+{
+    int icolor = (unsigned)rng;
+    return Scalar(icolor&255, (icolor>>8)&255, (icolor>>16)&255);
+}
+*/
+///SMOOTING IMAGES
+/*
+int DELAY_CAPTION = 1500;
+int DELAY_BLUR = 100;
+int MAX_KERNEL_LENGTH = 31;
+
+Mat src; Mat dst;
+char window_name[] = "Filter Tests";
+
+int display_caption(char* caption);
+int display_dst(int delay);
+
+int main(int argc, char** argv)
+{
+    namedWindow("window_name", WINDOW_AUTOSIZE);
+///Load source image-------------------------------------------------------
+    src = imread("../cyberpunk_room.jpg",1);
+    if(display_caption("Original Image") != 0)
+    {
+        printf("Original image cant be found!!!");
+        return 0;
+    }
+
+    dst = src.clone();
+    if(display_dst(DELAY_CAPTION) != 0)
+        {
+        return 0;
+        }
+    ///Applying Homogeneous Blur--------------------------------------------
+    if(display_caption("Homogeneous Blur") != 0)
+        {
+        return 0;
+        }
+    for (int i = 1; i < MAX_KERNEL_LENGTH; i = i + 2)
+    {
+    blur(src, dst, Size(i,i), Point(-1,-1));
+    if(display_dst(DELAY_BLUR) != 0)
+        {
+        return 0;
+        }
+    }
+    ///Applying Gaussian Blur
+    if(display_caption("Gaussian Blur") != 0)
+        {
+        return 0;
+        }
+    for (int i= 1; i < MAX_KERNEL_LENGTH; i = i+2)
+    {
+     GaussianBlur(src, dst, Size(i,i),0,0);
+     if(display_dst(DELAY_BLUR) != 0)
+     {
+         return 0;
+     }
+    }
+    ///Applying Median Blur---------------------------------------------------
+    if(display_caption("Median Blur") != 0)
+    {
+        return 0;
+    }
+    for (int i = 1; i < MAX_KERNEL_LENGTH; i = i+2)
+    {
+    medianBlur(src, dst,i);
+    if(display_dst(DELAY_BLUR) != 0)
+    {
+        return 0;
+    }
+    }
+    ///Applying Bilateral Filter
+    if(display_caption("Bilateral Blur") != 0)
+    {
+        return 0;
+    }
+    for (int i = 1; i < MAX_KERNEL_LENGTH; i = i+2)
+    {
+    bilateralFilter(src, dst,i, i*2,i/2);
+    if(display_dst(DELAY_BLUR) != 0)
+    {
+        return 0;
+    }
+    }
+    ///Wait till user press a key
+    display_caption("End: press a key!");
+
+    waitKey(0);
+    return 0;
+}
+
+int display_caption(char* caption)
+{
+    dst = Mat::zeros(src.size(), src.type());
+    putText(dst, caption, Point(src.cols/4, src.rows/2),FONT_HERSHEY_COMPLEX, 1, Scalar(255,255,255));
+
+    imshow("Window_Name", dst);
+    int c = waitKey(DELAY_CAPTION);
+    if(c >= 0)
+    {
+        return -1;
+    }
+    return 0;
+}
+
+int display_dst(int delay)
+{
+    imshow("Window_name",dst);
+    int c = waitKey(delay);
+    if(c >= 0)
+    {
+        return -1;
+    }
+    return 0;
 }
 */

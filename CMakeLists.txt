@@ -1,8 +1,11 @@
+
 cmake_minimum_required(VERSION 2.8)
 project( opencv_testrepo )
 find_package( OpenCV REQUIRED )
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable( opencv_testrepo main.cpp )
 target_link_libraries( opencv_testrepo ${OpenCV_LIBS} )
+target_link_libraries(opencv_testrepo Qt5::Widgets)
