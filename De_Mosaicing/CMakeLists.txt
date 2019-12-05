@@ -1,0 +1,11 @@
+cmake_minimum_required(VERSION 3.14)
+project(De_Mosaicing)
+find_package( OpenCV REQUIRED )
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_executable( De_Mosaicing main.cpp demosaicing_nearest_neighbor.cpp demosaicing_nearest_neighbor.h)
+target_link_libraries( De_Mosaicing ${OpenCV_LIBS} )
+target_link_libraries(De_Mosaicing Qt5::Widgets)
