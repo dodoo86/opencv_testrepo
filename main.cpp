@@ -18,6 +18,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <iostream>
 #include <QtWidgets/qmessagebox.h>
+#include "opencv2/core/utility.hpp"
+#include <math.h>
 
 #define WHITE Scalar(255,255,255)
 #define w 400
@@ -25,6 +27,7 @@
 
 using namespace cv;
 using namespace std;
+
 ///CHANGING CONTRAST BRIGHTNES-------------------------------------------------------------------------------------------
 /*
 int main(int argc, char** argv )
@@ -566,46 +569,90 @@ int display_dst(int delay)
     return 0;
 }
 */
-///EDGE DETECTION
-
-Mat src, src_gray;
-Mat dst, detected_edges;
+///EDGE DETECTION-------------------------------------------------------------------------------------------------------
+/*
+Mat frame, frame_gray;
+Mat frame_done, detected_edges;
 
 int edgeThresh = 1;
 int lowThreshold;
 int const max_lowThreshold = 100;
-int ratio = 3;
+int ratioo = 3;
 int kernel_size = 3;
-char* window_name = "Edge Map";
+static Scalar randomColor(RNG& rng);
+
 
 void CannyThreshold(int, void*)
 {
-    blur(src_gray, detected_edges, Size(3,3));
+    blur(frame_gray, detected_edges, Size(3,3));
 
-    Canny(detected_edges, detected_edges, lowThreshold, lowThreshold*3 , kernel_size);
+    Canny(detected_edges, detected_edges, lowThreshold, lowThreshold*ratioo , kernel_size);
 
-    dst = Scalar::all(0);
+    frame_done = Scalar::all(0);
 
-    src.copyTo(dst, detected_edges);
-    imshow(window_name, dst);
+    frame.copyTo(frame_done, detected_edges);
+    imshow("New Windoww", frame_done);
 }
 
 int main(int argc, char** argv)
 {
-    src = imread("../cyberpunk_room.jpg", 1);
+    VideoCapture cap(0);
 
-    if( !src.data)
+    if( !cap.isOpened())
     {
+        printf("Error opening video stream!!!");
         return -1;
     }
+    namedWindow("New Windoww", WINDOW_AUTOSIZE);
+    createTrackbar("Min Threshold:", "New Windoww", &lowThreshold, max_lowThreshold, CannyThreshold);
 
+    int n = 1;
+    while(1)
+    {
+        RNG rng(n);
+        cap>>frame;
+        if(frame.empty()){
+            break;
+        }
+        frame_done.create(frame.size(), frame.type());
+
+        cvtColor(frame, frame_gray, COLOR_BGR2GRAY);
+
+        ///Display the resulting frame
+        blur(frame_gray, detected_edges, Size(3,3));
+
+        Canny(detected_edges, detected_edges, lowThreshold, lowThreshold*ratioo , kernel_size);
+
+        frame_done = Scalar::all(0);
+
+        frame.copyTo(frame_done, detected_edges);
+        imshow("New Windoww", frame_done);
+
+        char c = (char)waitKey(1);
+        n++;
+        if(c==27){
+            break;
+        }
+
+
+    }
+    return 0;
+}
+
+static Scalar randomColor(RNG& rng)
+{
+    int icolor = (unsigned)rng;
+    return Scalar(icolor&255, (icolor>>8)&255, (icolor>>16)&255);
+}
+ */
+    /*
     dst.create(src.size(), src.type());
 
     cvtColor(src, src_gray, COLOR_BGR2GRAY);
 
-    namedWindow("New Window", WINDOW_AUTOSIZE);
+    namedWindow(window_name, WINDOW_AUTOSIZE);
 
-    createTrackbar("Min Threshold:", "New Window", &lowThreshold, max_lowThreshold, CannyThreshold);
+    createTrackbar("Min Threshold:", window_name, &lowThreshold, max_lowThreshold, CannyThreshold);
 
     CannyThreshold(0,0);
 
@@ -613,3 +660,107 @@ int main(int argc, char** argv)
 
     return 0;
 }
+*/
+///MORPHOLOGY-----------------------------------------------------------------------------------------------------------
+/*
+Mat src, dst;
+
+int morph_element = 0;
+int morph_size = 0;
+int morph_operator = 0;
+int const max_operator = 4;
+int const max_elem = 2;
+int const max_kernel_size = 21;
+
+const char* window_name = "Morphology";
+
+void Morphology_Operations(int, void*);
+
+int main(int argc, char** argv)
+{
+    CommandLineParser parser( argc, argv, "{@input | ../cyberpunk_room.jpg | input image}" );
+    src = imread(samples::findFile(parser.get<String>( "@input")), IMREAD_COLOR);
+    if(src.empty())
+    {
+        printf("Could not open image !!!");
+        cout<<"Usage: "<<argv[0]<<" <Input image>" <<endl;
+        return EXIT_FAILURE;
+    }
+    namedWindow(window_name, WINDOW_AUTOSIZE);
+
+    createTrackbar("Operator:\n 0: Opening - 1: Closing \n 2: Gradient - 3: Top Hat \n 4: Black Hat", window_name, &morph_operator, max_operator, Morphology_Operations);
+
+    createTrackbar( "Element:\n 0: Rect - 1: Cross - 2 Ellipse", window_name, &morph_element, max_elem, Morphology_Operations);
+
+    createTrackbar("Kernel size:\n 2n +1", window_name, &morph_size, max_kernel_size, Morphology_Operations);
+
+    Morphology_Operations(0,0);
+
+    waitKey(0);
+    return 0;
+
+}
+
+void Morphology_Operations(int, void*)
+{
+    int operation = morph_operator +2;
+
+    Mat element = getStructuringElement(morph_element, Size(2*morph_size + 1, 2*morph_size+1),Point(morph_size, morph_size));
+
+    morphologyEx(src, dst, operation, element);
+    imshow(window_name, dst);
+}
+*/
+///DOWNSAMPLE AND UPSAMPLE----------------------------------------------------------------------------------------------
+/*
+Mat src, dst, tmp;
+char* window_name = "Pyramind";
+
+int main(int argc, char** argv)
+{
+    printf("\n Zoom In-Out   \n");
+    printf("-----------------\n");
+    printf(" * [u] -> Zoom in \n");
+    printf(" * [d] -> Zoom out \n");
+    printf(" * [ESC] -> Close Program \n \n");
+
+    src = imread("../cyberpunk_room.jpg",1);
+    if( !src.data)
+    {
+        printf("No Data!!!");
+        return -1;
+    }
+
+    tmp = src;
+    dst = tmp;
+
+    namedWindow(window_name, WINDOW_AUTOSIZE);
+    imshow(window_name, dst);
+
+    while(true)
+    {
+        int c;
+        c = waitKey(10);
+
+        if((char)c == 27)
+        {
+            break;
+        }
+        if((char)c == 'u')
+        {
+            pyrUp(tmp, dst, Size(tmp.cols*2, tmp.rows*2));
+            printf("** Zoom in: Image x 2 \n");
+        }
+        else if((char)c == 'd')
+        {
+            pyrDown(tmp, dst, Size( tmp.cols/2, tmp.rows/2));
+            printf("** Zoom out: Image / 2 \n");
+        }
+
+        imshow(window_name, dst);
+        tmp = dst;
+    }
+return 0;
+}
+*/
+///DEMOSAICING----------------------------------------------------------------------------------------------------------
