@@ -11,9 +11,11 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 #include <iostream>
 #include <QtWidgets/qmessagebox.h>
 
@@ -452,7 +454,7 @@ static Scalar randomColor(RNG& rng)
     return Scalar(icolor&255, (icolor>>8)&255, (icolor>>16)&255);
 }
 */
-///SMOOTING IMAGES
+///SMOOTING IMAGES------------------------------------------------------------------------------------------------------
 /*
 int DELAY_CAPTION = 1500;
 int DELAY_BLUR = 100;
@@ -564,3 +566,50 @@ int display_dst(int delay)
     return 0;
 }
 */
+///EDGE DETECTION
+
+Mat src, src_gray;
+Mat dst, detected_edges;
+
+int edgeThresh = 1;
+int lowThreshold;
+int const max_lowThreshold = 100;
+int ratio = 3;
+int kernel_size = 3;
+char* window_name = "Edge Map";
+
+void CannyThreshold(int, void*)
+{
+    blur(src_gray, detected_edges, Size(3,3));
+
+    Canny(detected_edges, detected_edges, lowThreshold, lowThreshold*3 , kernel_size);
+
+    dst = Scalar::all(0);
+
+    src.copyTo(dst, detected_edges);
+    imshow(window_name, dst);
+}
+
+int main(int argc, char** argv)
+{
+    src = imread("../cyberpunk_room.jpg", 1);
+
+    if( !src.data)
+    {
+        return -1;
+    }
+
+    dst.create(src.size(), src.type());
+
+    cvtColor(src, src_gray, COLOR_BGR2GRAY);
+
+    namedWindow("New Window", WINDOW_AUTOSIZE);
+
+    createTrackbar("Min Threshold:", "New Window", &lowThreshold, max_lowThreshold, CannyThreshold);
+
+    CannyThreshold(0,0);
+
+    waitKey(0);
+
+    return 0;
+}
