@@ -7,13 +7,6 @@
 #include "opencv2/core/utility.hpp"
 #include <math.h>
 #include "Filters.h"
-/*
-cv::Mat demosaicing_nearest_neighbor(cv::Mat image)
-{
-    
-}
-*/
-
 
 int main() {
     cv::Mat image;
@@ -37,10 +30,10 @@ int main() {
     cv::namedWindow("Image Original", cv::WINDOW_AUTOSIZE);
     cv::namedWindow("Second solution", cv::WINDOW_AUTOSIZE);
 
-
     cv::imshow("Image Resoult", dst);
     cv::imshow("Image Original", image);
     cv::imshow("Second solution", dst_two);
+
     cv::waitKey(0);
     return 0;
 }

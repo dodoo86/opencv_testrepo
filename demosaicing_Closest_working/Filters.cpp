@@ -1,11 +1,9 @@
 #include "Filters.h"
 
 Filters::Filters()
-{
+= default;
 
-}
-
-cv::Mat Filters::demosaicing_nearest_neighbor(cv::Mat image)
+cv::Mat Filters::demosaicing_nearest_neighbor(const cv::Mat& image)
 {
     std::vector<cv::Mat> channels;
     cv::split(image, channels);
