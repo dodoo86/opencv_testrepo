@@ -19,6 +19,7 @@
 #include <iostream>
 #include <QtWidgets/qmessagebox.h>
 #include "opencv2/core/utility.hpp"
+#include "Filters.h"
 #include <math.h>
 
 #define WHITE Scalar(255,255,255)
@@ -390,10 +391,20 @@ void Line(Mat img, Point start,Point end);
 
 int main()
 {
+    int windowHeight = 480, windowWidth = 640;
     char blank_window[] = "Blank Window";
-    Mat blank_image = Mat::zeros(w,w,CV_8UC3);
-
-    Line(blank_image,Point(1,1),Point(250,250));
+    Mat blank_image = Mat::zeros(480,640,CV_8UC3);
+    int n = 10000;
+    while(1)
+    {
+        RNG rng(n);
+        Filters::randomColor(rng);
+        Filters::Drawing_Random_Lines(blank_image,"Random Lines",rng,5,windowHeight,windowWidth);
+        imshow("Random Lines",blank_image);
+        waitKey(100);
+        n++;
+    }
+    Filters::Line(blank_image, Point(1, 1), Point(250, 250));
 
     imshow(blank_window,blank_image);
     QMessageBox mBox(QMessageBox::Icon::Question, "Hallod", "Adjal mar egy cigit!", QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::Ignore);
@@ -410,7 +421,8 @@ void Line(Mat img, Point start, Point end)
 
     line(img,start,end,Scalar(155,200,120),thicness,lineType);
 }
-*/
+ */
+
 ///RANDOM LINE GENERATOR------------------------------------------------------------------------------------------------
 /*
 void Drawing_Random_Lines (Mat image, char* window_name, RNG rng,int NumOfLines, int windowHeight,int windowWidth);

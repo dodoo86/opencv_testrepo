@@ -1,28 +1,11 @@
 #include <iostream>
-#ifdef _WIN32
-#define PATH "..\\..\\..\\"
-#endif
-
-#ifdef linux
-#define PATH "../"
-#endif
-
-#ifdef __APPLE__
-#define PATH "../"
-#endif
-
-#include <stdio.h>
-#include <stdlib.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <iostream>
 #include <QtWidgets/qmessagebox.h>
 #include "opencv2/core/utility.hpp"
 #include <math.h>
-
-
 
 cv::Mat demosaicing_nearest_neighbor(cv::Mat image)
 {
@@ -74,6 +57,7 @@ cv::Mat demosaicing_nearest_neighbor(cv::Mat image)
     return dst;
 }
 
+
 int main() {
     cv::Mat image;
 
@@ -83,9 +67,17 @@ int main() {
         printf("No image data !!!");
         return -1;
     }
+    auto start = std::chrono::steady_clock::now();
+
     cv::Mat dst = demosaicing_nearest_neighbor(image);
+
+    auto finish = std::chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start);
+    std::cout << elapsed.count() << " ms" << std::endl;
+
     cv::namedWindow("Image Resoult", cv::WINDOW_AUTOSIZE);
     cv::namedWindow("Image Original", cv::WINDOW_AUTOSIZE);
+
 
     cv::imshow("Image Resoult", dst);
     cv::imshow("Image Original", image);
