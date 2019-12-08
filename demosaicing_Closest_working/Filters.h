@@ -15,8 +15,6 @@ public:
     static cv::Mat demosaicing_nearest(const cv::Mat& image);
     static void RED_BLUE_handler(const std::vector<cv::Mat> &channels, cv::Mat &result, int flag, int i, int j);
     static void GREEN_handler(const std::vector<cv::Mat> &channels, cv::Mat &result, int i, int j);
-protected:
-    cv::Mat image;
 };
 
 
