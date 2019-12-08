@@ -8,7 +8,7 @@ include_directories( ${OpenCV_INCLUDE_DIRS} )
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(demosaicing_Closest_working main.cpp)
+add_executable(demosaicing_Closest_working main.cpp Filters.cpp Filters.h)
 
 target_link_libraries( demosaicing_Closest_working ${OpenCV_LIBS} )
 target_link_libraries( demosaicing_Closest_working Qt5::Widgets)
